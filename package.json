@@ -2,6 +2,7 @@
   "name": "blocker-x",
   "version": "1.0.0",
   "description": "Blocker X - Safe Environment",
+  "author": "Rasel Mia",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
