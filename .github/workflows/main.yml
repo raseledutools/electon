@@ -31,5 +31,5 @@ jobs:
           tagName: v1.0.0
           releaseName: 'RasBlocker Pro v1.0.0'
           releaseBody: 'Lightweight Tauri Release'
-          releaseDraft: false
+          releaseDraft: true
           prerelease: false
