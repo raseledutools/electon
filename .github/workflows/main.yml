@@ -1,15 +1,15 @@
-name: Build Blocker X
+name: Build Tauri App
 
 on:
   push:
     branches: [ main ]
 
 jobs:
-  release:
+  build-tauri:
     runs-on: windows-latest
 
     steps:
-      - name: Check out Git repository
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Install Node.js
@@ -17,16 +17,19 @@ jobs:
         with:
           node-version: 18
 
-      - name: Install Dependencies
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install JS dependencies
         run: npm install
 
-      - name: Build Windows App
-        run: npm run build
+      - name: Build Tauri App
+        uses: tauri-apps/tauri-action@v0
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v4
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          name: BlockerX-Executable
-          path: dist/*.exe
+          tagName: v1.0.0
+          releaseName: 'RasBlocker Pro v1.0.0'
+          releaseBody: 'Lightweight Tauri Release'
+          releaseDraft: false
+          prerelease: false
