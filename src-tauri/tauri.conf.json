@@ -2,8 +2,8 @@
   "build": {
     "beforeBuildCommand": "",
     "beforeDevCommand": "",
-    "devPath": "../",
-    "distDir": "../"
+    "devPath": "../ui",
+    "distDir": "../ui"
   },
   "package": {
     "productName": "RasBlocker Pro",
@@ -16,6 +16,7 @@
     "bundle": {
       "active": true,
       "identifier": "com.rasel.rasblockerpro",
+      "icon": ["../icon.ico"],
       "targets": "nsis"
     },
     "windows": [
