@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Blocker X - Premium Edition</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); 
+            color: white; 
+            margin: 0; 
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .card { 
+            background: rgba(255, 255, 255, 0.05); 
+            backdrop-filter: blur(15px); 
+            padding: 40px; 
+            border-radius: 20px; 
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5); 
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            width: 80%;
+            max-width: 600px;
+            text-align: center;
+        }
+        h1 { color: #00d2ff; font-size: 2.8em; margin: 0 0 10px 0; text-transform: uppercase; letter-spacing: 2px;}
+        .subtitle { color: #a8c0ff; font-size: 1.1em; margin-bottom: 30px; }
+        
+        .status { margin-bottom: 25px; color: #ffeb3b; font-weight: bold; font-size: 1.2em; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 10px;}
+        
+        .input-group { display: flex; justify-content: space-between; margin-bottom: 15px; }
+        .input-group input { 
+            flex: 1; padding: 12px; border: none; border-radius: 8px; 
+            background: rgba(255,255,255,0.1); color: white; font-size: 1em; 
+            outline: none; margin-right: 10px;
+        }
+        .input-group input::placeholder { color: #bbb; }
+        .add-btn { 
+            padding: 12px 20px; background: #00d2ff; color: #000; border: none; 
+            border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; 
+        }
+        .add-btn:hover { background: #3a7bd5; color: white; }
+
+        .activate-btn { 
+            width: 100%; padding: 18px; background: linear-gradient(90deg, #cb2d3e, #ef473a); 
+            border: none; color: white; font-size: 1.3em; border-radius: 12px; 
+            cursor: pointer; box-shadow: 0 4px 15px rgba(231, 76, 60, 0.5); transition: 0.3s; margin-top: 20px; font-weight: bold;
+        }
+        .activate-btn:hover { transform: scale(1.02); box-shadow: 0 6px 20px rgba(231, 76, 60, 0.7); }
+        
+        .list-container { text-align: left; margin-top: 10px; font-size: 0.9em; color: #00d2ff; }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h1>BLOCKER X</h1>
+        <div class="subtitle">Premium Guard | Friend Control Active</div>
+        
+        <div class="status" id="status-text">Status: Idle - Awaiting Activation</div>
+
+        <div class="input-group">
+            <input type="text" id="site-input" placeholder="Custom site (e.g. facebook.com)">
+            <button class="add-btn" onclick="addCustom('site')">Add Site</button>
+        </div>
+        <div class="list-container" id="site-list">Blocked Sites: Default + </div>
+
+        <br>
+
+        <div class="input-group">
+            <input type="text" id="app-input" placeholder="Custom app (e.g. chrome.exe, game.exe)">
+            <button class="add-btn" onclick="addCustom('app')">Add App</button>
+        </div>
+        <div class="list-container" id="app-list">Blocked Apps: None</div>
+
+        <button class="activate-btn" onclick="activate()">ACTIVATE PREMIUM GUARD</button>
+    </div>
+
+    <script>
+        const { ipcRenderer } = require('electron');
+
+        // কাস্টম ডেটা যুক্ত করার ফাংশন
+        function addCustom(type) {
+            let inputField = document.getElementById(type + '-input');
+            let val = inputField.value.trim();
+            
+            if(val) {
+                ipcRenderer.send('add-custom-data', { type: type, value: val });
+                
+                // UI তে দেখানো
+                let listDiv = document.getElementById(type + '-list');
+                listDiv.innerText += " " + val + ", ";
+                inputField.value = '';
+            }
+        }
+
+        // মেইন প্রটেকশন অ্যাক্টিভেট
+        function activate() {
+            document.getElementById('status-text').innerText = 'Status: Initializing...';
+            document.getElementById('status-text').style.color = '#fff';
+            ipcRenderer.send('activate-protection');
+        }
+
+        // স্ট্যাটাস আপডেট রিসিভ করা
+        ipcRenderer.on('status', (event, message) => {
+            document.getElementById('status-text').innerText = message;
+            if(message.includes('Success')) {
+                document.getElementById('status-text').style.color = '#00ff87';
+            } else {
+                document.getElementById('status-text').style.color = '#ff4b4b';
+            }
+        });
+
+        // Friend Control - পাসওয়ার্ড ছাড়া অ্যাপ বন্ধ হবে না
+        ipcRenderer.on('ask-password-for-quit', () => {
+            // প্রফেশনাল সিস্টেমে কাস্টম মডেল ব্যবহার করা হয়, এখানে সিম্পল prompt দেওয়া হলো
+            const pass = prompt("[FRIEND CONTROL]\nWarning: Enter the admin/friend password to disable protection & quit:");
+            
+            if(pass === "admin123") { // আপনি চাইলে পাসওয়ার্ড চেঞ্জ করে নিতে পারেন
+                ipcRenderer.send('really-quit');
+            } else if (pass !== null) {
+                alert("ACCESS DENIED: Incorrect Password. Protection is still active.");
+            }
+        });
+    </script>
+</body>
+</html>
